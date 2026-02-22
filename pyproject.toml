@@ -1,5 +1,5 @@
 [tool.vercel.scripts]
-app = "api:app"
+app = "app:app"
 
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -10,18 +10,18 @@ name = "bili2text"
 version = "1.0.0"
 description = "B站视频转文字工具"
 readme = "README.md"
-
-[project.dependencies]
-fastapi = "*"
-uvicorn = "*"
-pydantic = "*"
-pydantic-settings = "*"
-python-multipart = "*"
-requests = "*"
-websocket-client = "*"
-moviepy = "*"
-pydub = "*"
-faster-whisper = "*"
-you-get = "*"
-ffmpeg-python = "*"
-imageio-ffmpeg = "*"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pydantic-settings",
+    "python-multipart",
+    "requests",
+    "websocket-client",
+    "moviepy",
+    "pydub",
+    "faster-whisper",
+    "you-get",
+    "ffmpeg-python",
+    "imageio-ffmpeg"
+]
