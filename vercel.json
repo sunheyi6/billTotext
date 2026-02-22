@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "api/app.py",
@@ -7,16 +8,20 @@
     {
       "src": "index.html",
       "use": "@vercel/static"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api(.*)",
-      "destination": "/api/app"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "(.*)",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/app.py"
+    },
+    {
+      "src": "/",
+      "dest": "index.html"
     }
   ]
 }
