@@ -1,15 +1,14 @@
 """FastAPI接口服务"""
 
-# Vercel deployment support
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+import os
 
-# 创建FastAPI应用
-app = FastAPI(
-    title="Bili2Text API",
-    description="B站视频转文字API",
-    version="1.0.0"
-)
+app = FastAPI()
+
+# 挂载静态文件服务
+app.mount("/static", StaticFiles(directory="../"), name="static")
 
 # 根路径返回index.html
 @app.get("/")
