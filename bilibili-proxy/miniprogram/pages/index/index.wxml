@@ -1,0 +1,86 @@
+<view class="container">
+  <!-- 服务状态 -->
+  <view class="status-bar">
+    <text class="status-label">服务状态：</text>
+    <text class="status-value {{serverStatus === '正常' ? 'ok' : 'error'}}">
+      {{serverStatus || '检查中...'}}
+    </text>
+  </view>
+
+  <!-- 标题 -->
+  <view class="header">
+    <text class="title">B站 UP主信息查询</text>
+    <text class="subtitle">解决小程序 403 访问限制</text>
+  </view>
+
+  <!-- 输入框 -->
+  <view class="input-section">
+    <input 
+      class="mid-input" 
+      type="number" 
+      placeholder="请输入 UP主 ID (mid)"
+      value="{{mid}}"
+      bindinput="onMidInput"
+    />
+    <button 
+      class="query-btn" 
+      type="primary" 
+      loading="{{loading}}"
+      bindtap="queryUpInfo"
+    >
+      查询
+    </button>
+  </view>
+
+  <!-- 示例 -->
+  <view class="tips">
+    <text>示例 ID：208259 (老番茄)</text>
+  </view>
+
+  <!-- 错误提示 -->
+  <view class="error-box" wx:if="{{error}}">
+    <text class="error-text">{{error}}</text>
+  </view>
+
+  <!-- UP主信息卡片 -->
+  <view class="info-card" wx:if="{{upInfo}}">
+    <view class="card-header">
+      <image class="avatar" src="{{upInfo.face}}" mode="aspectFill"/>
+      <view class="basic-info">
+        <text class="name">{{upInfo.name}}</text>
+        <text class="level">Lv{{upInfo.level}} {{upInfo.vip?.label?.text || ''}}</text>
+      </view>
+    </view>
+    
+    <view class="divider"></view>
+    
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-num">{{formatNumber(upInfo.follower)}}</text>
+        <text class="stat-label">粉丝</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{formatNumber(upInfo.following)}}</text>
+        <text class="stat-label">关注</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">{{formatNumber(upInfo.archive_count)}}</text>
+        <text class="stat-label">投稿</text>
+      </view>
+    </view>
+    
+    <view class="divider"></view>
+    
+    <view class="sign-box">
+      <text class="sign-label">个性签名</text>
+      <text class="sign-text">{{upInfo.sign || '这个人很懒，什么都没有写~'}}</text>
+    </view>
+    
+    <button class="copy-btn" bindtap="copyInfo">复制信息</button>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="footer">
+    <text class="cache-btn" bindtap="clearCache">清除缓存</text>
+  </view>
+</view>

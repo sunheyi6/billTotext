@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiliToText - B站视频转文字工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        accent: '#8b5cf6',
+                        dark: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 头部 -->
+        <header class="text-center mb-10">
+            <div class="inline-block p-3 bg-primary/10 rounded-full mb-4">
+                <i class="fa fa-youtube-play text-primary text-4xl"></i>
+            </div>
+            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-gray-800 text-shadow">
+                BiliToText
+            </h1>
+            <p class="text-gray-600 text-lg mt-2">
+                B站视频转文字工具 - 快速提取视频内容
+            </p>
+        </header>
+
+        <!-- 主内容 -->
+        <main class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <!-- 输入区域 -->
+            <div class="mb-8">
+                <label for="videoUrl" class="block text-sm font-medium text-gray-700 mb-2">
+                    B站视频链接
+                </label>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input
+                        type="text"
+                        id="videoUrl"
+                        placeholder="https://www.bilibili.com/video/BV1Epf3BVExe/"
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all-300"
+                    >
+                    <button
+                        id="convertBtn"
+                        class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 active:bg-primary/80 transition-all-300 flex items-center justify-center gap-2"
+                    >
+                        <i class="fa fa-magic"></i>
+                        <span>开始转换</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- 加载状态 -->
+            <div id="loading" class="hidden mb-6">
+                <div class="flex items-center justify-center gap-3 py-6">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                    <div class="text-gray-600">
+                        正在处理中... 视频下载和音频处理可能需要几分钟
+                    </div>
+                </div>
+            </div>
+
+            <!-- 错误提示 -->
+            <div id="error" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-circle text-red-500 mt-1"></i>
+                    <div>
+                        <h3 class="font-medium text-red-800">处理失败</h3>
+                        <p id="errorMessage" class="text-red-700 mt-1"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果区域 -->
+            <div id="result" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        转换结果
+                    </h3>
+                    <div class="flex gap-2">
+                        <span id="processingTime" class="text-sm text-gray-500"></span>
+                        <button
+                            id="copyBtn"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all-300 flex items-center gap-1"
+                        >
+                            <i class="fa fa-copy"></i>
+                            复制
+                        </button>
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 max-h-[500px] overflow-y-auto">
+                    <pre id="resultText" class="whitespace-pre-wrap text-gray-800 font-sans text-sm leading-relaxed"></pre>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部 -->
+        <footer class="mt-8 text-center text-gray-500 text-sm">
+            <p>© 2026 BiliToText - 基于豆包ASR技术</p>
+        </footer>
+    </div>
+
+    <script>
+        // API基础URL
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // DOM元素
+        const videoUrlInput = document.getElementById('videoUrl');
+        const convertBtn = document.getElementById('convertBtn');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultDiv = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+        const processingTime = document.getElementById('processingTime');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // 显示错误
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+            loadingDiv.classList.add('hidden');
+            resultDiv.classList.add('hidden');
+        }
+
+        // 显示结果
+        function showResult(text, time) {
+            resultText.textContent = text;
+            processingTime.textContent = `耗时: ${time.toFixed(2)}秒`;
+            resultDiv.classList.remove('hidden');
+            loadingDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+        }
+
+        // 复制文本
+        async function copyToClipboard() {
+            const text = resultText.textContent;
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                
+                // 显示复制成功
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fa fa-check"></i> 已复制';
+                copyBtn.classList.add('bg-green-100', 'text-green-700');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.classList.remove('bg-green-100', 'text-green-700');
+                }, 2000);
+            } catch (err) {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            }
+        }
+
+        // 转换视频
+        async function convertVideo() {
+            const videoUrl = videoUrlInput.value.trim();
+
+            if (!videoUrl) {
+                showError('请输入视频链接');
+                return;
+            }
+
+            if (!videoUrl.includes('BV')) {
+                showError('视频链接必须包含BV号');
+                return;
+            }
+
+            // 显示加载状态
+            loadingDiv.classList.remove('hidden');
+            errorDiv.classList.add('hidden');
+            resultDiv.classList.add('hidden');
+
+            try {
+                // 发送请求
+                const response = await fetch(`${API_BASE_URL}/api/convert`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        video_url: videoUrl,
+                        use_doubao: true
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `请求失败: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(data.text, data.processing_time);
+                } else {
+                    showError(data.message || '转换失败');
+                }
+            } catch (error) {
+                showError(error.message || '网络错误，请重试');
+                console.error('转换失败:', error);
+            }
+        }
+
+        // 事件监听
+        convertBtn.addEventListener('click', convertVideo);
+        copyBtn.addEventListener('click', copyToClipboard);
+
+        // 回车触发转换
+        videoUrlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                convertVideo();
+            }
+        });
+
+        // 示例链接
+        videoUrlInput.value = 'https://www.bilibili.com/video/BV1Epf3BVExe/';
+    </script>
+</body>
+</html>

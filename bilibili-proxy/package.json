@@ -1,0 +1,22 @@
+{
+  "name": "bilibili-proxy",
+  "version": "1.0.0",
+  "description": "Bilibili API 中转服务 - 解决小程序 403 问题",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "pm2": "pm2 start server.js --name bilibili-proxy"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "express": "^4.18.2",
+    "node-cache": "^5.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

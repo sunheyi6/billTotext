@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bili2Text - B站视频转文字</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#6366F1',
+                        dark: '#1E293B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .glass {
+                @apply bg-white/80 backdrop-blur-md border border-gray-200 dark:bg-gray-900/80 dark:border-gray-700;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-primary/90 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary/50;
+            }
+            .input {
+                @apply w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white;
+            }
+            .textarea {
+                @apply w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white resize-none;
+            }
+            .card {
+                @apply glass rounded-xl p-6 shadow-lg;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950 text-gray-800 dark:text-gray-200">
+    <div class="container mx-auto px-4 py-12 max-w-5xl">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Bili2Text</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">B站视频转文字工具 - 快速提取视频内容</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Input Section -->
+            <div class="card mb-8">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fa fa-video-camera mr-2 text-primary"></i>
+                    视频链接
+                </h2>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input 
+                        type="text" 
+                        id="videoUrl" 
+                        placeholder="请输入B站视频链接，例如：https://www.bilibili.com/video/BV1Epf3BVExe/" 
+                        class="input flex-1"
+                    >
+                    <button 
+                        id="convertBtn" 
+                        class="btn btn-primary whitespace-nowrap"
+                    >
+                        <i class="fa fa-magic mr-2"></i>
+                        开始转换
+                    </button>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <i class="fa fa-info-circle mr-2 text-primary"></i>
+                        <span>支持的链接格式：BV号链接或完整视频链接</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="card mb-8">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fa fa-spinner mr-2 text-primary"></i>
+                    转换状态
+                </h2>
+                <div id="status" class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="text-gray-600 dark:text-gray-400">准备就绪，请输入视频链接并点击开始转换</p>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold flex items-center">
+                        <i class="fa fa-file-text mr-2 text-primary"></i>
+                        转换结果
+                    </h2>
+                    <button 
+                        id="copyBtn" 
+                        class="btn btn-secondary"
+                        disabled
+                    >
+                        <i class="fa fa-copy mr-2"></i>
+                        复制结果
+                    </button>
+                </div>
+                <div class="relative">
+                    <textarea 
+                        id="result" 
+                        class="textarea h-80"
+                        placeholder="转换结果将显示在这里..."
+                        readonly
+                    ></textarea>
+                    <div id="copyToast" class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm opacity-0 transition-opacity duration-300">
+                        <i class="fa fa-check mr-1"></i> 复制成功
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>Bili2Text © 2026 | 基于豆包ASR技术</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const videoUrl = document.getElementById('videoUrl');
+        const convertBtn = document.getElementById('convertBtn');
+        const status = document.getElementById('status');
+        const result = document.getElementById('result');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyToast = document.getElementById('copyToast');
+
+        // Convert function
+        async function convertVideo() {
+            const url = videoUrl.value.trim();
+            if (!url) {
+                showStatus('请输入视频链接', 'error');
+                return;
+            }
+
+            // Validate URL
+            if (!url
