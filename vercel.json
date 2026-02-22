@@ -5,26 +5,18 @@
       "use": "@vercel/python"
     },
     {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "web/index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "(.*)",
+      "src": "(?!api).*",
       "use": "@vercel/static"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/app"
+      "src": "/api/(.*)",
+      "dest": "api/app.py"
     },
     {
-      "source": "/",
-      "destination": "/index.html"
+      "src": "/",
+      "dest": "index.html"
     }
   ]
 }
