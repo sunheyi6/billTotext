@@ -1,5 +1,8 @@
 """FastAPI接口服务"""
 
+# Vercel deployment support
+# This file is renamed to app.py for Vercel compatibility
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
