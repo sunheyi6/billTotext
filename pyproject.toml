@@ -17,4 +17,9 @@ dependencies = [
     "python-multipart",
     "requests",
     "websocket-client",
+    "you-get",
+    "moviepy",
+    "pydub",
+    "ffmpeg-python",
+    "imageio-ffmpeg",
 ]

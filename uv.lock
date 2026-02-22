@@ -12,6 +12,11 @@ dependencies = [
     { name = "python-multipart" },
     { name = "requests" },
     { name = "websocket-client" },
+    { name = "you-get" },
+    { name = "moviepy" },
+    { name = "pydub" },
+    { name = "ffmpeg-python" },
+    { name = "imageio-ffmpeg" },
 ]
 
 [package.metadata]
@@ -22,6 +27,11 @@ requires-dist = [
     { name = "python-multipart" },
     { name = "requests" },
     { name = "websocket-client" },
+    { name = "you-get" },
+    { name = "moviepy" },
+    { name = "pydub" },
+    { name = "ffmpeg-python" },
+    { name = "imageio-ffmpeg" },
 ]
 
 [[package]]
@@ -72,4 +82,44 @@ dependencies = [
 [[package]]
 name = "websocket-client"
 version = "1.8.0"
+source = { registry = "https://pypi.org/simple" }
+
+[[package]]
+name = "you-get"
+version = "0.4.1700"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dukpy" },
+]
+
+[[package]]
+name = "moviepy"
+version = "1.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "decorator" },
+    { name = "imageio" },
+    { name = "imageio-ffmpeg" },
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "proglog" },
+    { name = "tqdm" },
+]
+
+[[package]]
+name = "pydub"
+version = "0.25.1"
+source = { registry = "https://pypi.org/simple" }
+
+[[package]]
+name = "ffmpeg-python"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "future" },
+]
+
+[[package]]
+name = "imageio-ffmpeg"
+version = "0.5.1"
 source = { registry = "https://pypi.org/simple" }
