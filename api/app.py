@@ -1,7 +1,7 @@
 """FastAPI接口服务"""
 
 # Vercel deployment support
-# This file is app.py for Vercel compatibility
+# This file is in api/app.py for Vercel compatibility
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +10,11 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
 import os
+import sys
 import time
+
+# 添加项目根目录到 Python 路径
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # 导入后端功能
 from utils import download_video
@@ -37,12 +41,12 @@ app.add_middleware(
 )
 
 # 挂载静态文件
-app.mount("/static", StaticFiles(directory=""), name="static")
+app.mount("/static", StaticFiles(directory="../"), name="static")
 
 # 根路径返回index.html
 @app.get("/")
 async def root():
-    return FileResponse("index.html")
+    return FileResponse("../index.html")
 
 # 请求模型
 class VideoRequest(BaseModel):
